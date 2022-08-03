@@ -4,6 +4,7 @@
 
   let todoTitle = "";
   let todoId = 4;
+  let currentFilter = "all"
   let todos = [
     {
       id: 1,
@@ -41,10 +42,12 @@
   }
 
   const deleteTodo = (id) => {
-    todos = todos.filter(todo => !todo.id).length
+    todos = todos.filter(todo => todo.id != id)
   }
 
   $: remainingTodos = todos.filter(todo => todo.isComplete == false).length
+
+  $: filteredTodos = currentFilter == 'all' ? todos : currentFilter == 'active' ? todos.filter(todo => !todo.isComplete) : todos.filter(todo => todo.isComplete)
 
   const checkAll = () => {
     todos = todos.map(todo => {
@@ -70,9 +73,11 @@
         bind:value={todoTitle}
       />
     </form>
+
+    {#if todos.length > 0}
     <ul class="todo-list">
 
-      {#each todos as todo, index}
+      {#each filteredTodos as todo}
         <li class="todo-item-container">
         <div class="todo-item">
           <input type="checkbox" bind:checked={todo.isComplete}/>
@@ -104,7 +109,6 @@
       </li>
       {/each}
     </ul>
-
     <div class="check-all-container">
       <div>
         <button class="button" on:click={checkAll}>Check All</button>
@@ -114,14 +118,17 @@
 
     <div class="other-buttons-container">
       <div>
-        <button class="button filter-button filter-button-active"> All </button>
-        <button class="button filter-button">Active</button>
-        <button class="button filter-button">Completed</button>
+        <button on:click={() => currentFilter = 'all'} class="button filter-button" class:filter-button-active={currentFilter == 'all'}> All </button>
+        <button on:click={() => currentFilter = 'active'} class="button filter-button" class:filter-button-active={currentFilter == 'active'}>Active</button>
+        <button on:click={() => currentFilter = 'completed'} class="button filter-button" class:filter-button-active={currentFilter == 'completed'}>Completed</button>
       </div>
       <div>
         <button class="button" on:click="{clearAll}">Clear completed</button>
       </div>
     </div>
+    {:else}
+      <div class="no-todos-container">Data not found, Please create todo...</div>
+    {/if}
   </div>
 </div>
     
